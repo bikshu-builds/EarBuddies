@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: "https://earbuddies-1.onrender.com/api",
 });
 
 // Auto attach JWT to every request
