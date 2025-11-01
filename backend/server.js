@@ -26,6 +26,7 @@ app.use(
   })
 );
 
+// ✅ Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/rooms", roomRoutes);
 app.use("/api/messages", messageRoutes);
@@ -35,24 +36,14 @@ app.get("/", (req, res) => {
   res.send("✅ SyncWave API is running...");
 });
 
+// ✅ Create HTTP + WebSocket server
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: { origin: "http://localhost:5173", methods: ["GET", "POST"] },
 });
 
-// 🎧 In-memory music session state per room
+// 🎧 Music state per room
 const roomMusicState = {};
-
-/*
-roomMusicState = {
-  ROOM123: {
-    currentSong: {...},
-    isPlaying: true,
-    playbackTime: 45.2,
-    lastUpdate: 1728472910000
-  }
-}
-*/
 
 io.on("connection", (socket) => {
   console.log("🟢 Connected:", socket.id);
@@ -87,7 +78,7 @@ io.on("connection", (socket) => {
     io.to(data.roomCode).emit("user_stopped_typing", data.username);
   });
 
-  // 💬 Messages
+  // 💬 Text Messages
   socket.on("send_message", async (data) => {
     const { roomCode, user, content } = data;
     try {
@@ -98,16 +89,72 @@ io.on("connection", (socket) => {
         room: room._id,
         sender: user._id,
         content,
+        type: "text",
       });
       await newMessage.save();
 
       io.to(roomCode).emit("receive_message", {
         sender: user,
         content,
+        type: "text",
         timestamp: newMessage.timestamp,
       });
     } catch (err) {
       console.error("❌ Message error:", err.message);
+    }
+  });
+
+  // 💥 Emoji Message
+  socket.on("send_emoji_message", async ({ roomCode, user, emoji }) => {
+    try {
+      const room = await Room.findOne({ roomCode });
+      if (!room) return console.error("❌ Room not found:", roomCode);
+
+      const newMessage = new Message({
+        room: room._id,
+        sender: user._id,
+        content: emoji,
+        type: "emoji",
+      });
+      await newMessage.save();
+
+      // Broadcast emoji chat + trigger rain
+      io.to(roomCode).emit("receive_message", {
+        sender: user,
+        content: emoji,
+        type: "emoji",
+        timestamp: newMessage.timestamp,
+      });
+      io.to(roomCode).emit("receive_reaction", { emoji, username: user.username });
+    } catch (err) {
+      console.error("❌ Emoji message error:", err.message);
+    }
+  });
+
+  // 🖼️ Meme Message
+  socket.on("send_meme_message", async ({ roomCode, user, memeUrl }) => {
+    try {
+      const room = await Room.findOne({ roomCode });
+      if (!room) return console.error("❌ Room not found:", roomCode);
+
+      const newMessage = new Message({
+        room: room._id,
+        sender: user._id,
+        content: "Meme shared",
+        type: "meme",
+        mediaUrl: memeUrl,
+      });
+      await newMessage.save();
+
+      io.to(roomCode).emit("receive_message", {
+        sender: user,
+        content: "Meme shared",
+        type: "meme",
+        mediaUrl: memeUrl,
+        timestamp: newMessage.timestamp,
+      });
+    } catch (err) {
+      console.error("❌ Meme message error:", err.message);
     }
   });
 
@@ -120,14 +167,11 @@ io.on("connection", (socket) => {
       lastUpdate: Date.now(),
     };
 
-    io.to(roomCode).emit("song_changed", {
-      song,
-      playbackTime: 0,
-    });
-
+    io.to(roomCode).emit("song_changed", { song, playbackTime: 0 });
     io.to(roomCode).emit("receive_message", {
       sender: { username: "System" },
       content: `🎶 ${username} changed the song to "${song.trackName}"`,
+      type: "system",
       timestamp: new Date(),
     });
   });
@@ -150,10 +194,9 @@ io.on("connection", (socket) => {
     }
   });
 
-  // 🟡 NEW: Live Emoji Reactions
+  // 💫 Real-time Emoji Rain (reaction)
   socket.on("send_reaction", ({ roomCode, emoji, username }) => {
     console.log(`💫 ${username} reacted with ${emoji} in ${roomCode}`);
-    // Broadcast to everyone in the same room
     io.to(roomCode).emit("receive_reaction", { emoji, username });
   });
 
