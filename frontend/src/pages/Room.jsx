@@ -35,7 +35,7 @@ const Room = () => {
         const [roomRes, msgRes, songsRes] = await Promise.all([
           api.get(`/rooms/${code}`),
           api.get(`/messages/${code}`),
-          axios.get("http://localhost:5000/api/music/songs?term=telugu"),
+          axios.get("https://earbuddies-1.onrender.com/api/music/songs?term=telugu"),
         ]);
         setRoom(roomRes.data);
         setMessages(msgRes.data);
