@@ -20,7 +20,7 @@ const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: "https://earbuddies.onrender.com",
+    origin: "http://localhost:5173",
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
   })
@@ -39,7 +39,7 @@ app.get("/", (req, res) => {
 // ✅ Create HTTP + WebSocket server
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: { origin: "https://earbuddies.onrender.com", methods: ["GET", "POST"] },
+  cors: { origin: "http://localhost:5173", methods: ["GET", "POST"] },
 });
 
 // 🎧 Music state per room
