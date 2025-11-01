@@ -38,27 +38,27 @@ const Register = () => {
   };
 
   return (
-    <div className="relative flex justify-center items-center min-h-screen overflow-hidden bg-gradient-to-br from-indigo-50 via-white to-purple-50 mt-18">
+    <div className="relative flex justify-center items-center min-h-screen overflow-hidden bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 mt-18">
       {/* Animated background blobs */}
-      <div className="absolute w-96 h-96 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob"></div>
-      <div className="absolute w-96 h-96 bg-indigo-200 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob animation-delay-2000"></div>
-      <div className="absolute w-96 h-96 bg-pink-200 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob animation-delay-4000"></div>
+      <div className="absolute w-96 h-96 bg-emerald-200 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob"></div>
+      <div className="absolute w-96 h-96 bg-teal-200 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob animation-delay-2000"></div>
+      <div className="absolute w-96 h-96 bg-cyan-200 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob animation-delay-4000"></div>
 
       {/* Parallax cursor effect */}
       <div 
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: `radial-gradient(circle 500px at ${mousePosition.x}px ${mousePosition.y}px, rgba(99, 102, 241, 0.08), transparent)`,
+          background: `radial-gradient(circle 500px at ${mousePosition.x}px ${mousePosition.y}px, rgba(16, 185, 129, 0.08), transparent)`,
         }}
       ></div>
 
       {/* Floating particles */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-3 h-3 bg-indigo-400 rounded-full animate-float shadow-lg"></div>
-        <div className="absolute top-1/3 right-1/4 w-4 h-4 bg-purple-400 rounded-full animate-float animation-delay-1000 shadow-lg"></div>
-        <div className="absolute bottom-1/4 left-1/3 w-3 h-3 bg-pink-300 rounded-full animate-float animation-delay-2000 shadow-lg"></div>
-        <div className="absolute bottom-1/3 right-1/3 w-4 h-4 bg-indigo-300 rounded-full animate-float animation-delay-3000 shadow-lg"></div>
-        <div className="absolute top-1/2 left-1/2 w-3 h-3 bg-purple-300 rounded-full animate-float animation-delay-4000 shadow-lg"></div>
+        <div className="absolute top-1/4 left-1/4 w-3 h-3 bg-emerald-400 rounded-full animate-float shadow-lg"></div>
+        <div className="absolute top-1/3 right-1/4 w-4 h-4 bg-teal-400 rounded-full animate-float animation-delay-1000 shadow-lg"></div>
+        <div className="absolute bottom-1/4 left-1/3 w-3 h-3 bg-cyan-300 rounded-full animate-float animation-delay-2000 shadow-lg"></div>
+        <div className="absolute bottom-1/3 right-1/3 w-4 h-4 bg-emerald-300 rounded-full animate-float animation-delay-3000 shadow-lg"></div>
+        <div className="absolute top-1/2 left-1/2 w-3 h-3 bg-teal-300 rounded-full animate-float animation-delay-4000 shadow-lg"></div>
       </div>
 
       {/* Animated Card */}
@@ -66,10 +66,10 @@ const Register = () => {
         initial={{ opacity: 0, scale: 0.9, y: 30 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="relative z-10 bg-white/90 backdrop-blur-xl p-8 sm:p-10 rounded-3xl shadow-2xl w-full max-w-md mx-4 border border-gray-200"
+        className="relative z-10 bg-white/90 backdrop-blur-xl p-8 sm:p-10 rounded-3xl shadow-2xl w-full max-w-md mx-4 border border-emerald-100"
       >
         {/* Decorative gradient border effect */}
-        <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-3xl opacity-20 blur animate-pulse-subtle"></div>
+        <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-3xl opacity-20 blur animate-pulse-subtle"></div>
         
         <div className="relative">
           {/* Header with icon */}
@@ -79,7 +79,7 @@ const Register = () => {
             transition={{ delay: 0.2 }}
             className="text-center mb-8"
           >
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl shadow-lg mb-4 animate-float-gentle">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl shadow-lg mb-4 animate-float-gentle">
               <Sparkles className="w-8 h-8 text-white" />
             </div>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-800 mb-2">
@@ -110,11 +110,11 @@ const Register = () => {
                 Username
               </label>
               <div className="relative">
-                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-500 transition-colors duration-200" size={20} />
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-emerald-500 transition-colors duration-200" size={20} />
                 <input
                   type="text"
                   placeholder="Choose a username"
-                  className="w-full bg-gray-50 text-gray-800 rounded-xl p-4 pl-12 outline-none border-2 border-gray-200 focus:border-indigo-500 focus:bg-white transition-all duration-200 placeholder-gray-400"
+                  className="w-full bg-emerald-50 text-gray-800 rounded-xl p-4 pl-12 outline-none border-2 border-emerald-100 focus:border-emerald-500 focus:bg-white transition-all duration-200 placeholder-gray-400"
                   onChange={(e) => setForm({ ...form, username: e.target.value })}
                   required
                 />
@@ -132,11 +132,11 @@ const Register = () => {
                 Email Address
               </label>
               <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-500 transition-colors duration-200" size={20} />
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-emerald-500 transition-colors duration-200" size={20} />
                 <input
                   type="email"
                   placeholder="you@example.com"
-                  className="w-full bg-gray-50 text-gray-800 rounded-xl p-4 pl-12 outline-none border-2 border-gray-200 focus:border-indigo-500 focus:bg-white transition-all duration-200 placeholder-gray-400"
+                  className="w-full bg-emerald-50 text-gray-800 rounded-xl p-4 pl-12 outline-none border-2 border-emerald-100 focus:border-emerald-500 focus:bg-white transition-all duration-200 placeholder-gray-400"
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
                   required
                 />
@@ -154,11 +154,11 @@ const Register = () => {
                 Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-500 transition-colors duration-200" size={20} />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-emerald-500 transition-colors duration-200" size={20} />
                 <input
                   type="password"
                   placeholder="Create a strong password"
-                  className="w-full bg-gray-50 text-gray-800 rounded-xl p-4 pl-12 outline-none border-2 border-gray-200 focus:border-indigo-500 focus:bg-white transition-all duration-200 placeholder-gray-400"
+                  className="w-full bg-emerald-50 text-gray-800 rounded-xl p-4 pl-12 outline-none border-2 border-emerald-100 focus:border-emerald-500 focus:bg-white transition-all duration-200 placeholder-gray-400"
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
                   required
                 />
@@ -173,7 +173,7 @@ const Register = () => {
               whileHover={{ scale: 1.02, y: -2 }}
               whileTap={{ scale: 0.98 }}
               className={`relative overflow-hidden ${
-                loading ? "bg-indigo-400 cursor-not-allowed" : "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
+                loading ? "bg-emerald-400 cursor-not-allowed" : "bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700"
               } text-white font-bold py-4 rounded-xl mt-2 transition-all duration-300 shadow-lg hover:shadow-xl group`}
               type="submit"
               disabled={loading}
@@ -192,7 +192,7 @@ const Register = () => {
                 )}
               </span>
               {!loading && (
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-teal-600 to-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               )}
             </motion.button>
           </form>
@@ -207,7 +207,7 @@ const Register = () => {
               Already have an account?{" "}
               <span
                 onClick={() => navigate("/login")}
-                className="text-indigo-600 hover:text-purple-600 cursor-pointer font-bold underline decoration-2 underline-offset-2 transition-colors duration-200"
+                className="text-emerald-600 hover:text-teal-600 cursor-pointer font-bold underline decoration-2 underline-offset-2 transition-colors duration-200"
               >
                 Login
               </span>
@@ -215,17 +215,17 @@ const Register = () => {
           </motion.div>
 
           {/* Decorative elements */}
-          <div className="absolute -z-10 top-0 right-0 w-32 h-32 bg-purple-200 rounded-full filter blur-3xl opacity-30 animate-pulse"></div>
-          <div className="absolute -z-10 bottom-0 left-0 w-32 h-32 bg-indigo-200 rounded-full filter blur-3xl opacity-30 animate-pulse animation-delay-2000"></div>
+          <div className="absolute -z-10 top-0 right-0 w-32 h-32 bg-teal-200 rounded-full filter blur-3xl opacity-30 animate-pulse"></div>
+          <div className="absolute -z-10 bottom-0 left-0 w-32 h-32 bg-emerald-200 rounded-full filter blur-3xl opacity-30 animate-pulse animation-delay-2000"></div>
         </div>
       </motion.div>
 
       {/* Floating music notes */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-20 left-10 text-4xl opacity-15 animate-float-slow text-indigo-400">🎵</div>
-        <div className="absolute top-32 right-16 text-3xl opacity-15 animate-float-slow animation-delay-1000 text-purple-400">🎶</div>
-        <div className="absolute bottom-32 left-20 text-4xl opacity-15 animate-float-slow animation-delay-2000 text-pink-300">✨</div>
-        <div className="absolute bottom-20 right-10 text-3xl opacity-15 animate-float-slow animation-delay-3000 text-indigo-300">🎵</div>
+        <div className="absolute top-20 left-10 text-4xl opacity-15 animate-float-slow text-emerald-400">🎵</div>
+        <div className="absolute top-32 right-16 text-3xl opacity-15 animate-float-slow animation-delay-1000 text-teal-400">🎶</div>
+        <div className="absolute bottom-32 left-20 text-4xl opacity-15 animate-float-slow animation-delay-2000 text-cyan-300">✨</div>
+        <div className="absolute bottom-20 right-10 text-3xl opacity-15 animate-float-slow animation-delay-3000 text-emerald-300">🎵</div>
       </div>
 
       {/* Custom animations */}
