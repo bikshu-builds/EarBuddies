@@ -4,6 +4,7 @@ import api from "../utils/axios";
 import socket from "../utils/socket";
 import dayjs from "dayjs";
 import axios from "axios";
+import EmojiPickerPopup from "./EmojiPickerPopup";
 
 const Room = () => {
   const { code } = useParams();
@@ -18,6 +19,7 @@ const Room = () => {
   const [reactions, setReactions] = useState([]);
   const audioRef = useRef(null);
   const chatEndRef = useRef(null);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   const user = JSON.parse(localStorage.getItem("user") || "{}");
 
@@ -516,27 +518,61 @@ const Room = () => {
               </div>
 
               {/* Message Input */}
-              <div className="p-6 border-t border-gray-200">
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={newMessage}
-                    onChange={handleTyping}
-                    className="flex-1 px-4 py-3 bg-emerald-50 border-2 border-emerald-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-300 text-gray-800 placeholder-gray-400"
-                    placeholder="Type your message..."
-                    onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
-                  />
-                  <button
-                    onClick={sendMessage}
-                    disabled={!newMessage.trim()}
-                    className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-bold px-6 py-3 rounded-xl transition-all duration-300 transform hover:scale-105 active:scale-95 disabled:scale-100 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
+<div className="p-6 border-t border-gray-200 relative">
+  <div className="flex gap-2 items-center">
+    {/* Emoji Button */}
+    <button
+      type="button"
+      onClick={() => setShowEmojiPicker((prev) => !prev)}
+      className="bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-500 hover:to-amber-600 text-white font-bold p-3 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105"
+      title="Choose Emoji"
+    >
+      😀
+    </button>
+
+    {/* Message Input */}
+    <input
+      type="text"
+      value={newMessage}
+      onChange={handleTyping}
+      className="flex-1 px-4 py-3 bg-emerald-50 border-2 border-emerald-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-300 text-gray-800 placeholder-gray-400"
+      placeholder="Type your message..."
+      onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+    />
+
+    {/* Send Button */}
+    <button
+      onClick={sendMessage}
+      disabled={!newMessage.trim()}
+      className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-bold px-6 py-3 rounded-xl transition-all duration-300 transform hover:scale-105 active:scale-95 disabled:scale-100 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+    >
+      <svg
+        className="w-5 h-5"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+        />
+      </svg>
+    </button>
+  </div>
+
+  {/* Emoji Picker Popup (absolute below button) */}
+  <EmojiPickerPopup
+    show={showEmojiPicker}
+    onEmojiClick={(emojiData) => {
+      setNewMessage((prev) => prev + emojiData.emoji);
+      setShowEmojiPicker(false);
+    }}
+    onClose={() => setShowEmojiPicker(false)}
+  />
+</div>
+
             </div>
           </div>
         </div>

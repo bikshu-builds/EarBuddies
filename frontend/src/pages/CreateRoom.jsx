@@ -183,7 +183,7 @@ const CreateRoom = () => {
 
       <div className="relative z-10 container mx-auto px-4 py-8 sm:py-12">
         {/* Enhanced Back Button */}
-        <div className="mb-6 sm:mb-8 animate-fadeIn">
+        <div className="mt-10 sm:mb-8 animate-fadeIn">
           <button
             onClick={() => navigate(-1)}
             className="group flex items-center gap-2 text-gray-600 hover:text-emerald-600 transition-all duration-300 transform hover:-translate-x-2 hover:scale-105"

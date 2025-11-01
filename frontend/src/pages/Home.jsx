@@ -17,7 +17,7 @@ const Home = () => {
   }, []);
 
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-screen overflow-hidden bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 text-gray-800 mt-17">
+    <div className="relative flex flex-col items-center justify-center min-h-screen overflow-hidden from-emerald-50 via-teal-50 to-cyan-50 text-gray-800 mt-17">
       {/* Animated background blobs with enhanced movements */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-emerald-200 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob"></div>
       <div className="absolute top-20 right-20 w-96 h-96 bg-teal-200 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob animation-delay-2000"></div>
@@ -43,7 +43,7 @@ const Home = () => {
       {/* Main content */}
       <div className={`z-10 text-center px-4 sm:px-6 lg:px-8 transform transition-all duration-1000 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
         {/* Enhanced animated logo */}
-        <div className="flex justify-center mb-6 sm:mb-8">
+        <div className="flex justify-center mb-6 sm:mb-8" style={{marginTop:'30px'}}>
           <div className="relative">
             {/* Multiple layered glow effects */}
             <div className="absolute inset-0 bg-emerald-300 rounded-full blur-2xl opacity-50 animate-pulse-glow"></div>
@@ -54,7 +54,7 @@ const Home = () => {
             <div className="absolute inset-0 rounded-full border-4 border-teal-400/30 animate-spin-reverse"></div>
             
             {/* Main icon container */}
-            <div className="relative bg-gradient-to-br from-emerald-500 to-teal-600 p-6 sm:p-8 rounded-full shadow-2xl transform hover:scale-110 hover:rotate-12 transition-all duration-500 animate-float-gentle group">
+            <div className="relative bg-gradient-to-br from-emerald-500 to-teal-600 p-6 sm:p-8 rounded-full shadow-2xl transform hover:scale-110 hover:rotate-12 transition-all duration-500 animate-float-gentle group" >
               <Music className="w-14 h-14 sm:w-20 sm:h-20 text-white drop-shadow-2xl animate-bounce-slow group-hover:rotate-12 transition-transform duration-500" />
               
               {/* Orbiting dots */}
