@@ -4,7 +4,6 @@ import api from "../utils/axios";
 import socket from "../utils/socket";
 import dayjs from "dayjs";
 import axios from "axios";
-import EmojiPicker from "emoji-picker-react";
 
 const Room = () => {
   const { code } = useParams();
@@ -17,48 +16,37 @@ const Room = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [reactions, setReactions] = useState([]);
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [showMemePicker, setShowMemePicker] = useState(false);
-  const [memes, setMemes] = useState([]);
-  const [selectedMeme, setSelectedMeme] = useState(null);
-
   const audioRef = useRef(null);
   const chatEndRef = useRef(null);
-  const typingTimeoutRef = useRef(null);
+
   const user = JSON.parse(localStorage.getItem("user") || "{}");
 
-  // 🧭 Scroll chat to bottom when new message arrives
+  // 🧭 Auto-scroll chat
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // 📦 Load data & connect socket
+  // 📦 Load room, chat, and songs
   useEffect(() => {
-    const loadInitialData = async () => {
+    const loadData = async () => {
       try {
-        const [roomRes, msgRes, songsRes, memesRes] = await Promise.all([
+        const [roomRes, msgRes, songsRes] = await Promise.all([
           api.get(`/rooms/${code}`),
           api.get(`/messages/${code}`),
           axios.get("http://localhost:5000/api/music/songs?term=telugu"),
-          axios.get("https://api.imgflip.com/get_memes"),
         ]);
         setRoom(roomRes.data);
         setMessages(msgRes.data);
         setSongs(songsRes.data);
-        setMemes(
-          memesRes.data.data.memes.filter((m) =>
-            /(telugu|fun|meme)/i.test(m.name)
-          )
-        );
       } catch (err) {
-        console.error("❌ Failed to load room data:", err);
+        console.error("❌ Failed to load:", err);
       }
     };
+    loadData();
 
-    loadInitialData();
     socket.emit("join_room", code);
 
-    // 🔹 Listen for socket events
+    // 🗨️ Chat events
     socket.on("receive_message", (msg) => setMessages((p) => [...p, msg]));
     socket.on("user_typing", (u) =>
       setTypingUsers((p) => (p.includes(u) ? p : [...p, u]))
@@ -67,6 +55,7 @@ const Room = () => {
       setTypingUsers((p) => p.filter((x) => x !== u))
     );
 
+    // 🎵 Music events
     socket.on("song_changed", ({ song, playbackTime }) => {
       setCurrentSong(song);
       if (audioRef.current) {
@@ -84,22 +73,29 @@ const Room = () => {
       isPlaying ? audioRef.current.play() : audioRef.current.pause();
     });
 
-    socket.on("receive_reaction", ({ emoji }) => {
+    // 💫 Emoji Reactions
+    socket.on("receive_reaction", ({ emoji, username }) => {
+      console.log(`💫 ${username} reacted with ${emoji}`);
       triggerEmojiRain(emoji);
     });
 
     return () => {
       socket.emit("leave_room", code);
-      socket.off();
+      socket.off("receive_message");
+      socket.off("user_typing");
+      socket.off("user_stopped_typing");
+      socket.off("song_changed");
+      socket.off("music_play_toggled");
+      socket.off("receive_reaction");
     };
   }, [code]);
 
-  // ✍️ Handle typing indicator
+  // ✍️ Typing
+  const typingTimeoutRef = useRef(null);
   const handleTyping = (e) => {
     const value = e.target.value;
     setNewMessage(value);
     if (!user?.username) return;
-
     socket.emit("typing", { roomCode: code, username: user.username });
     clearTimeout(typingTimeoutRef.current);
     typingTimeoutRef.current = setTimeout(() => {
@@ -107,21 +103,13 @@ const Room = () => {
     }, 1000);
   };
 
-  // 💬 Send message or meme
   const sendMessage = () => {
-    if ((!newMessage.trim() && !selectedMeme) || !user?._id) return;
-
-    const content = selectedMeme
-      ? `[MEME](${selectedMeme.url})`
-      : newMessage.trim();
-
-    socket.emit("send_message", { roomCode: code, user, content });
+    if (!newMessage.trim() || !user?._id) return;
+    socket.emit("send_message", { roomCode: code, user, content: newMessage });
     setNewMessage("");
-    setSelectedMeme(null);
-    setShowMemePicker(false);
   };
 
-  // 🎵 Select a song (sync for all)
+  // 🎶 Song select
   const handleSongSelect = (song) => {
     setCurrentSong(song);
     if (audioRef.current) {
@@ -138,14 +126,12 @@ const Room = () => {
     }
   };
 
-  // ⏯️ Toggle Play/Pause
   const togglePlay = () => {
     if (!audioRef.current) return;
     const newStatus = !isPlaying;
     const playbackTime = audioRef.current.currentTime;
     setIsPlaying(newStatus);
     newStatus ? audioRef.current.play() : audioRef.current.pause();
-
     socket.emit("toggle_music", {
       roomCode: code,
       isPlaying: newStatus,
@@ -154,28 +140,32 @@ const Room = () => {
     });
   };
 
-  // 🕒 Track playback
+  // 🕒 Track time
   useEffect(() => {
-    const timer = setInterval(() => {
-      if (audioRef.current && isPlaying)
+    const interval = setInterval(() => {
+      if (audioRef.current && isPlaying) {
         setCurrentTime(audioRef.current.currentTime);
+      }
     }, 1000);
-    return () => clearInterval(timer);
+    return () => clearInterval(interval);
   }, [isPlaying]);
 
-  // 🌧️ Emoji Rain Effect
+  // 💥 Emoji Rain
   const triggerEmojiRain = (emoji) => {
     const id = Date.now();
     setReactions((prev) => [...prev, { id, emoji }]);
-    setTimeout(
-      () => setReactions((prev) => prev.filter((r) => r.id !== id)),
-      4000
-    );
+    setTimeout(() => {
+      setReactions((prev) => prev.filter((r) => r.id !== id));
+    }, 4000);
   };
 
   const sendReaction = (emoji) => {
     triggerEmojiRain(emoji);
-    socket.emit("send_reaction", { roomCode: code, emoji, username: user.username });
+    socket.emit("send_reaction", {
+      roomCode: code,
+      emoji,
+      username: user.username,
+    });
   };
 
   if (!room) {
@@ -196,82 +186,6 @@ const Room = () => {
       <div className="absolute top-0 right-0 w-96 h-96 bg-teal-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
       <div className="absolute bottom-0 left-1/2 w-96 h-96 bg-cyan-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
 
-<<<<<<< HEAD
-      {/* 🎧 Music Player */}
-      <div className="bg-gray-800 p-4 rounded-lg w-[450px] mb-4">
-        <h2 className="text-xl font-semibold mb-2">🎶 Shared Player</h2>
-        {currentSong ? (
-          <div className="text-center">
-            <img
-              src={currentSong.artworkUrl100}
-              alt={currentSong.trackName}
-              className="w-40 h-40 mx-auto rounded-lg mb-2"
-            />
-            <h3 className="font-semibold">{currentSong.trackName}</h3>
-            <p className="text-gray-400">{currentSong.artistName}</p>
-            <p className="text-gray-400 text-sm">
-              {Math.floor(currentTime)}s / 30s
-            </p>
-            <audio ref={audioRef} hidden />
-            <button
-              onClick={togglePlay}
-              className="bg-blue-600 px-4 py-2 mt-3 rounded hover:bg-blue-700"
-            >
-              {isPlaying ? "⏸ Pause" : "▶️ Play"}
-            </button>
-          </div>
-        ) : (
-          <p className="text-gray-400 text-center">
-            No song playing — choose one below 👇
-          </p>
-        )}
-      </div>
-
-      {/* 🎵 Song List */}
-      <div className="grid grid-cols-2 gap-3 w-[450px] mb-5">
-        {songs.slice(0, 8).map((song, i) => (
-          <div
-            key={i}
-            onClick={() => handleSongSelect(song)}
-            className="bg-gray-700 rounded-lg p-2 cursor-pointer hover:bg-gray-600 transition"
-          >
-            <img
-              src={song.artworkUrl100}
-              alt={song.trackName}
-              className="rounded mb-2"
-            />
-            <p className="font-semibold text-sm truncate">{song.trackName}</p>
-            <p className="text-gray-400 text-xs truncate">{song.artistName}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* 💬 Chat Section */}
-      <div className="bg-gray-700 w-96 h-96 rounded p-3 flex flex-col overflow-y-auto mb-2">
-        {messages.length === 0 && (
-          <p className="text-gray-400 text-center">No messages yet...</p>
-        )}
-        {messages.map((msg, i) => (
-          <div
-            key={i}
-            className={`mb-2 ${
-              msg.sender?._id === user?._id
-                ? "text-green-400 text-right"
-                : "text-white"
-            }`}
-          >
-            <div>
-              <strong>{msg.sender?.username || "Unknown"}</strong>:{" "}
-              {msg.content.startsWith("[MEME](") ? (
-                <img
-                  src={msg.content.slice(7, -1)}
-                  alt="meme"
-                  className="w-48 rounded-lg inline-block"
-                />
-              ) : (
-                msg.content
-              )}
-=======
       <style>{`
         @keyframes blob {
           0%, 100% { transform: translate(0, 0) scale(1); }
@@ -380,7 +294,6 @@ const Room = () => {
               <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
->>>>>>> origin/Sulthan
             </div>
           </div>
           <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent mb-2">
@@ -389,73 +302,6 @@ const Room = () => {
           <p className="text-gray-600">Share this code with your friends to join</p>
         </div>
 
-<<<<<<< HEAD
-      {/* 👀 Typing */}
-      {typingUsers.length > 0 && (
-        <p className="text-sm text-gray-400 mb-2">
-          {typingUsers.join(", ")}{" "}
-          {typingUsers.length > 1 ? "are typing..." : "is typing..."}
-        </p>
-      )}
-
-      {/* 🎉 Reactions */}
-      <div className="flex space-x-3 mb-4">
-        {["❤️", "😂", "🔥", "🎵", "👏", "😍"].map((emoji) => (
-          <button
-            key={emoji}
-            onClick={() => sendReaction(emoji)}
-            className="text-2xl hover:scale-125 transition-transform"
-          >
-            {emoji}
-          </button>
-        ))}
-      </div>
-
-      {/* 📤 Message Input */}
-      <div className="flex space-x-2 relative">
-        <button
-          onClick={() => {
-            setShowEmojiPicker((p) => !p);
-            setShowMemePicker(false);
-          }}
-          className="bg-gray-500 px-3 rounded"
-        >
-          😀
-        </button>
-        <button
-          onClick={() => {
-            setShowMemePicker((p) => !p);
-            setShowEmojiPicker(false);
-          }}
-          className="bg-gray-500 px-3 rounded"
-        >
-          🖼️
-        </button>
-        <input
-          type="text"
-          value={newMessage}
-          onChange={handleTyping}
-          className="w-64 px-3 py-2 text-black rounded"
-          placeholder="Type a message..."
-          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-        />
-        <button
-          onClick={sendMessage}
-          className="bg-blue-600 px-4 py-2 rounded text-white hover:bg-blue-700"
-        >
-          Send
-        </button>
-
-        {/* Emoji Picker */}
-        {showEmojiPicker && (
-          <div className="absolute bottom-12 left-0 z-50">
-            <EmojiPicker
-              onEmojiClick={(emoji) => setNewMessage((p) => p + emoji.emoji)}
-              theme="dark"
-            />
-          </div>
-        )}
-=======
         {/* Main Grid Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
           
@@ -694,10 +540,9 @@ const Room = () => {
             </div>
           </div>
         </div>
->>>>>>> origin/Sulthan
       </div>
 
-      {/* 🌧️ Emoji Rain */}
+      {/* 🪄 Emoji Rain Overlay */}
       <div className="pointer-events-none fixed top-0 left-0 w-full h-full overflow-hidden z-50">
         {reactions.map((r) => (
           <span
@@ -712,24 +557,6 @@ const Room = () => {
           </span>
         ))}
       </div>
-<<<<<<< HEAD
-
-      {/* 🎨 Emoji Rain Animation */}
-      <style>{`
-        @keyframes fall {
-          0% { transform: translateY(-10vh); opacity: 1; }
-          100% { transform: translateY(110vh); opacity: 0; }
-        }
-        .animate-fall {
-          animation-name: fall;
-          animation-timing-function: linear;
-          position: absolute;
-          top: -50px;
-          pointer-events: none;
-        }
-      `}</style>
-=======
->>>>>>> origin/Sulthan
     </div>
   );
 };
