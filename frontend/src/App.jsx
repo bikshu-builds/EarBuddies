@@ -9,6 +9,7 @@ import CreateRoom from "./pages/CreateRoom";
 import JoinRoom from "./pages/joinRoom";
 import Room from "./pages/Room";
 import ProtectedRoute from "./components/ProtectedRoute";
+import './App.css'
 
 function App() {
   return (
